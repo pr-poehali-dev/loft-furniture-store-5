@@ -3,6 +3,8 @@ import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
+import { useCart } from '@/context/CartContext';
+import { useToast } from '@/hooks/use-toast';
 
 interface ProductCardProps {
   id: number;
@@ -12,9 +14,11 @@ interface ProductCardProps {
   category: string;
 }
 
-export default function ProductCard({ name, price, images, category }: ProductCardProps) {
+export default function ProductCard({ id, name, price, images, category }: ProductCardProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isZoomed, setIsZoomed] = useState(false);
+  const { addItem } = useCart();
+  const { toast } = useToast();
 
   const nextImage = () => {
     setCurrentImageIndex((prev) => (prev + 1) % images.length);
@@ -99,7 +103,23 @@ export default function ProductCard({ name, price, images, category }: ProductCa
         <h3 className="font-heading font-semibold text-lg mb-3">{name}</h3>
         <div className="flex items-center justify-between">
           <p className="text-2xl font-heading font-bold">{price.toLocaleString('ru-RU')} ₽</p>
-          <Button variant="default" size="sm">
+          <Button 
+            variant="default" 
+            size="sm"
+            onClick={() => {
+              addItem({
+                id,
+                name,
+                price,
+                image: images[0],
+                category,
+              });
+              toast({
+                title: 'Товар добавлен в корзину',
+                description: name,
+              });
+            }}
+          >
             <Icon name="ShoppingCart" size={16} className="mr-2" />
             В корзину
           </Button>
